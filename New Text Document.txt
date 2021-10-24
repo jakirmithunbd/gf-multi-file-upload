@@ -1,0 +1,207 @@
+window.addEventListener('load', (e) => {
+  if(e) tajFormControl(e);
+
+  let getFormId = 9;
+  const nextBtn = document.querySelectorAll('input[type="button"]');
+
+  nextBtn.forEach(item => {
+    item.addEventListener('click', () => {
+      const formId = item.form.id.slice(6);
+      getFormId = formId;
+
+      const mj_gform_ajax_frame = document.querySelector('#gform_ajax_frame_' + getFormId);
+      mj_gform_ajax_frame.addEventListener('load', (ie) => {
+        const gform_validation_error = document.querySelector('.gform_validation_error');
+        const nextBtnPrev = document.querySelector('#gform_previous_button_'+ getFormId);
+        if(nextBtnPrev) tajFormControl(ie)
+        if(gform_validation_error) tajFormControl(ie)
+      });
+    })
+  })
+})
+
+
+function tajFormControl(eType) {
+  const register_item = document.querySelectorAll('.registering-wrapper .repeat-items-wrapper .item');
+  
+  if(register_item){
+    const form_items = document.querySelectorAll('.ndis-participant_wrapper');
+
+    register_item.forEach(item => {
+      item.addEventListener('click', e => {
+        let confirmation_wrapper = document.querySelector('.gform_confirmation_wrapper');
+        if(confirmation_wrapper){
+          location.reload();
+        }
+        else {
+          const target_id = e.target.closest(".item").dataset.id;
+          const target_item = document.getElementById(target_id);
+
+          form_items.forEach(rm_item => {
+            rm_item.classList.remove('form-active');
+            rm_item.classList.add('form-delete');
+          })
+          target_item.classList.add('form-active');
+        }
+      })
+    })
+  }
+  
+  function findItem(sorce, searchItem){
+    for(let i = 0; i<sorce.length; i++){
+      if(sorce[i].className === searchItem){
+        return sorce[i];
+      }
+      continue
+    }
+  }
+
+  function progressControll(progressItem, progressValue, upFileNumber){
+    if(!progressItem || !progressValue) return;
+    let progressValueCal =  progressValue.length * (100 / 3);
+    progressItem.style.width = progressValueCal + '%';
+    
+    upFileNumber.innerHTML = progressValue.length;
+  }
+
+  function inputFileModify(inputFile) {
+    if(!inputFile) return;
+    inputFile.forEach((item) => {
+
+    if(eType.target.nodeName == 'IFRAME'){
+      item.classList.remove('gform_hidden');
+      const parentId = item.parentElement.parentElement.id;
+      const formId = item.parentElement.parentElement.closest('form').id;
+     
+
+      const previewRemove = document.querySelector('#' + parentId + ' .ginput_preview .gform_delete');
+      if(previewRemove) {
+        item.parentElement.parentElement.closest('li').classList.add('file-add');
+        previewRemove.classList.add('gform_hidden');
+		    const fileName = document.querySelector('#' + parentId + ' .ginput_preview strong');
+        fileName.classList.add('up-file-name');
+        const progressItem = document.querySelector('#' + formId + ' .taj-progress-bar-wrap .taj-progress-bar .taj-progress');
+        const progressValue = document.querySelectorAll('.up-file-name');
+        const upFileNumber = document.querySelector('#' + formId + ' .file-number');
+        
+        const removeButton = document.createElement('span');
+        const ctAttribute = document.createAttribute('class');
+        ctAttribute.value = 'remove-up-file';
+        removeButton.setAttributeNode(ctAttribute);
+        const textnode = document.createTextNode("Remove");
+        removeButton.appendChild(textnode);
+        previewRemove.parentElement.appendChild(removeButton);
+        
+        removeBtnPreview(removeButton, previewRemove, formId, item);
+        progressControll(progressItem, progressValue, upFileNumber)
+      }
+    }
+
+      item.addEventListener('change', (e) => {
+        let addElenent = item.parentElement.childNodes;
+        if(!findItem(addElenent, 'up-file-name')) {
+          const ctElement = document.createElement('span');
+          const ctAttribute = document.createAttribute('class');
+          ctAttribute.value = 'up-file-name';
+          ctElement.setAttributeNode(ctAttribute);
+          const fileName = e.target.value.slice(12);
+          ctElement.innerHTML = fileName;
+          item.parentElement.appendChild(ctElement);
+        }else {
+          const targetItemSrc = e.target.parentElement.childNodes;
+          const targetItem = findItem(targetItemSrc, 'up-file-name');
+                
+          if(targetItem) {
+            const fileName = e.target.value.slice(12);
+            targetItem.innerHTML = fileName;
+          }
+
+        }
+        e.target.closest('li').classList.add('file-add')
+        createFileRemove(item)
+
+        const formId = '#' + e.target.form.id;
+        const progressItemSrc = formId + ' .taj-progress-bar-wrap .taj-progress-bar .taj-progress';
+        const progressValueSrc = formId + ' .up-file-name';
+        const upFileNumberSrc = formId + ' .file-number';
+        
+        const upFileNumber = document.querySelector(upFileNumberSrc);
+        const progressItem = document.querySelector(progressItemSrc);
+        const progressValue = document.querySelectorAll(progressValueSrc);
+        progressControll(progressItem, progressValue, upFileNumber);
+
+      })
+    })
+  }
+
+  function createFileRemove(item){
+    let itemWrap = item.parentElement;
+    if(!findItem(itemWrap.childNodes, 'remove-up-file')){
+      const removeButton = document.createElement('span');
+      const ctAttribute = document.createAttribute('class');
+      ctAttribute.value = 'remove-up-file';
+      removeButton.setAttributeNode(ctAttribute);
+      const textnode = document.createTextNode("Remove");
+      removeButton.appendChild(textnode);
+      item.parentElement.appendChild(removeButton);
+      removeBtn(removeButton);
+    }
+  }
+  
+  function removeBtn(removeButton = '') {
+
+    removeButton.addEventListener('click', (e) => {
+      e.target.closest('li').classList.remove('file-add')
+      const getFormId = '#' + e.target.closest('form').id;
+      const rmBtnParent = e.target.parentElement.childNodes;
+      const upFileNumberSrc = getFormId + ' .file-number';
+      
+      if(rmBtnParent){
+        Array.from(rmBtnParent).forEach(item => {
+          if(item.localName == 'input') {
+            item.value = '';
+          }
+          if(item.localName == 'span') {
+            item.remove();
+          }
+
+        })
+
+      const upFileNumber = document.querySelector(upFileNumberSrc);
+      const progressItemSrc = getFormId + ' .taj-progress-bar-wrap .taj-progress-bar .taj-progress';
+      const progressValueSrc = getFormId + ' .up-file-name';
+        
+      const progressItem = document.querySelector(progressItemSrc);
+      const progressValue = document.querySelectorAll(progressValueSrc);
+        
+      progressControll(progressItem, progressValue, upFileNumber);
+        
+      }
+    })
+  }
+
+  function removeBtnPreview(removeBtn, preViewBtn, formId, item) {
+    removeBtn.addEventListener('click', () => {
+      preViewBtn.click();
+      item.parentElement.parentElement.closest('li').classList.remove('file-add');
+      const progressItem = document.querySelector('#' + formId + ' .taj-progress-bar-wrap .taj-progress-bar .taj-progress');
+      const progressValue = document.querySelectorAll('.up-file-name');
+      const upFileNumber = document.querySelector('#' + formId + ' .file-number');
+      
+      progressControll(progressItem, progressValue, upFileNumber);
+    });
+  }
+
+  const inputFile = document.querySelectorAll('input[type="file"]');
+  if(inputFile) inputFileModify(inputFile);
+  
+  const iCon = document.querySelector(".icon--search");
+  iCon.addEventListener("click", handler, true);
+
+  function handler(e) {
+      e.stopPropagation();
+      e.preventDefault();
+  }
+
+}
+
