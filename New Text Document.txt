@@ -205,3 +205,50 @@ function tajFormControl(eType) {
 
 }
 
+
+    if($('.product-single')) {
+      const changeQuantity = (event) => {
+        const action = $(event.currentTarget).data('action');
+        let quantity = Number(jQuery('.counter-amount').html().trim());
+        if(action === 'minus' && quantity === 1) { return }
+        quantity = (action === 'plus') ? quantity + 1 : quantity - 1;
+        jQuery('.counter-amount').html(quantity);
+        $('form.cart input').val(quantity)
+      }
+
+
+      $('form.cart input').attr('type','hidden');
+      $('form.cart button').addClass('elementor-button');
+
+      $('.counter-minus').on('click', changeQuantity)
+      $('.counter-plus').on('click', changeQuantity)
+    }
+
+    <div class="counter">
+    <div class="counter-label">
+      <h6>Quantity</h6>
+    </div>
+    <div class="counter-wrapper">
+        <button data-action="minus" class="counter-button counter-minus"></button>
+      <div class="counter-amount"> 1 </div>
+      <button data-action="plus" class="counter-button counter-plus"></button>
+    </div>
+  </div>
+  
+      if($('.product-single')) {
+      const changeQuantity = (event) => {
+        const action = $(event.currentTarget).data('action');
+        let quantity = Number(jQuery('.counter-amount').html().trim());
+        if(action === 'minus' && quantity === 1) { return }
+        quantity = (action === 'plus') ? quantity + 1 : quantity - 1;
+        jQuery('.counter-amount').html(quantity);
+        $('form.cart input').val(quantity)
+      }
+
+
+      $('form.cart input').attr('type','hidden');
+      $('form.cart button').addClass('elementor-button');
+
+      $('.counter-minus').on('click', changeQuantity)
+      $('.counter-plus').on('click', changeQuantity)
+    }
